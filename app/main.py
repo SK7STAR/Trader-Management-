@@ -210,6 +210,102 @@ class RiskManagementScreen(Screen):
 
 
 # -----------------------------
+# Premium Tools Screen (UI only, locked feel)
+# -----------------------------
+class PremiumToolsScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+
+        title = Label(
+            text="Premium Tools (Locked Demo)",
+            font_size="20sp",
+            size_hint=(1, 0.15)
+        )
+        layout.add_widget(title)
+
+        info = Label(
+            text=(
+                "Premium features planned:\n"
+                "- Advanced profit calculator\n"
+                "- Fees analysis\n"
+                "- Capital growth, journal, export\n\n"
+                "Upgrade to premium to unlock in future versions."
+            ),
+            font_size="14sp",
+            size_hint=(1, 0.55)
+        )
+        layout.add_widget(info)
+
+        back_btn = Button(
+            text="⬅ Back to Home",
+            size_hint=(1, 0.15)
+        )
+        back_btn.bind(on_press=self.go_back_home)
+        layout.add_widget(back_btn)
+
+        self.add_widget(layout)
+
+    def go_back_home(self, *_):
+        self.manager.current = "home"
+
+
+# -----------------------------
+# Activate Premium Screen (UI only, payment planned)
+# -----------------------------
+class ActivatePremiumScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
+
+        title = Label(
+            text="Activate Premium",
+            font_size="20sp",
+            size_hint=(1, 0.15)
+        )
+        layout.add_widget(title)
+
+        plan = Label(
+            text=(
+                "Plan: ₹50 / 30 days\n\n"
+                "Premium will unlock:\n"
+                "- Advanced calculators\n"
+                "- Fees system\n"
+                "- Growth & journal tools\n\n"
+                "Payment gateway integration is planned.\n"
+                "In future, this button will start the real payment."
+            ),
+            font_size="14sp",
+            size_hint=(1, 0.55)
+        )
+        layout.add_widget(plan)
+
+        fake_pay_btn = Button(
+            text="(Demo) Pay ₹50 & Unlock Premium",
+            size_hint=(1, 0.15)
+        )
+        fake_pay_btn.bind(on_press=self._demo_payment)
+        layout.add_widget(fake_pay_btn)
+
+        back_btn = Button(
+            text="⬅ Back to Home",
+            size_hint=(1, 0.15)
+        )
+        back_btn.bind(on_press=self.go_back_home)
+        layout.add_widget(back_btn)
+
+        self.add_widget(layout)
+
+    def _demo_payment(self, *_):
+        print("[APP] In future this will start the real payment flow via backend + gateway.")
+
+    def go_back_home(self, *_):
+        self.manager.current = "home"
+
+
+# -----------------------------
 # Home Screen
 # -----------------------------
 class HomeScreen(Screen):
@@ -248,21 +344,23 @@ class HomeScreen(Screen):
         btn_risk.bind(on_press=self.open_risk_management)
         layout.add_widget(btn_risk)
 
-        # Placeholders for future screens
+        # Premium Tools navigation
         btn_premium_tools = Button(
-            text="Premium Tools (Locked)",
+            text="Premium Tools (Locked Demo)",
             size_hint=(1, 0.13)
         )
-        btn_premium_tools.bind(on_press=lambda x: self._placeholder("Premium Tools"))
+        btn_premium_tools.bind(on_press=self.open_premium_tools)
         layout.add_widget(btn_premium_tools)
 
+        # Activate Premium navigation
         btn_activate = Button(
-            text="Activate Premium (planned)",
+            text="Activate Premium (Planned)",
             size_hint=(1, 0.13)
         )
-        btn_activate.bind(on_press=lambda x: self._placeholder("Activate Premium"))
+        btn_activate.bind(on_press=self.open_activate_premium)
         layout.add_widget(btn_activate)
 
+        # Settings placeholder
         btn_settings = Button(
             text="Settings & Help (soon)",
             size_hint=(1, 0.13)
@@ -277,6 +375,12 @@ class HomeScreen(Screen):
 
     def open_risk_management(self, *_):
         self.manager.current = "risk_management"
+
+    def open_premium_tools(self, *_):
+        self.manager.current = "premium_tools"
+
+    def open_activate_premium(self, *_):
+        self.manager.current = "activate_premium"
 
     def _placeholder(self, name: str):
         print(f"[APP] Button pressed (not implemented yet): {name}")
@@ -295,52 +399,13 @@ class TraderApp(App):
         sm.add_widget(HomeScreen(name="home"))
         sm.add_widget(TradeEntryScreen(name="trade_entry"))
         sm.add_widget(RiskManagementScreen(name="risk_management"))
+        sm.add_widget(PremiumToolsScreen(name="premium_tools"))
+        sm.add_widget(ActivatePremiumScreen(name="activate_premium"))
         return sm
 
 
 if __name__ == "__main__":
-    TraderApp().run()
-        # Back to Home
-        back_btn = Button(
-            text="⬅ Back to Home",
-            size_hint=(1, 0.13),
-            on_press=lambda x: self.manager.current = "home"
-        )
-        layout.add_widget(back_btn)
-
-        self.add_widget(layout)
-
-    def _calculate_basic(self):
-        try:
-            entry = float(self.entry_input.text)
-            sl = float(self.sl_input.text)
-            tp = float(self.tp_input.text)
-
-            risk = abs(entry - sl)
-            reward = abs(tp - entry)
-
-            if risk == 0:
-                rr_text = "RR: ∞ (SL equals entry)"
-            else:
-                rr = reward / risk
-                rr_text = f"RR: 1 : {rr:.2f}"
-
-            direction = "LONG" if tp > entry else "SHORT"
-
-            self.result_label.text = (
-                f"Direction: {direction}\n"
-                f"Risk per unit: {risk:.2f}\n"
-                f"Reward per unit: {reward:.2f}\n"
-                f"{rr_text}"
-            )
-        except ValueError:
-            self.result_label.text = "Please enter valid numbers for Entry, SL, and TP."
-
-
-# -----------------------------
-# Home Screen
-# -----------------------------
-class HomeScreen(Screen):
+    TraderApp().run()reen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
