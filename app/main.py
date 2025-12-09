@@ -16,9 +16,9 @@ class TradeEntryScreen(Screen):
         layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
         title = Label(
-            text="Trade Entry & P&L (Demo)",
+            text="Trade Entry & P&L (Basic Demo)",
             font_size="20sp",
-            size_hint=(1, 0.15)
+            size_hint=(1, 0.12)
         )
         layout.add_widget(title)
 
@@ -26,7 +26,8 @@ class TradeEntryScreen(Screen):
         self.entry_input = TextInput(
             hint_text="Entry price",
             multiline=False,
-            size_hint=(1, 0.12)
+            size_hint=(1, 0.12),
+            input_filter="float"
         )
         layout.add_widget(self.entry_input)
 
@@ -34,7 +35,8 @@ class TradeEntryScreen(Screen):
         self.sl_input = TextInput(
             hint_text="Stop Loss (SL)",
             multiline=False,
-            size_hint=(1, 0.12)
+            size_hint=(1, 0.12),
+            input_filter="float"
         )
         layout.add_widget(self.sl_input)
 
@@ -42,15 +44,24 @@ class TradeEntryScreen(Screen):
         self.tp_input = TextInput(
             hint_text="Take Profit (TP)",
             multiline=False,
-            size_hint=(1, 0.12)
+            size_hint=(1, 0.12),
+            input_filter="float"
         )
         layout.add_widget(self.tp_input)
 
-        # For now just a placeholder calculate button
+        # Result label
+        self.result_label = Label(
+            text="Enter values and tap Calculate.",
+            font_size="14sp",
+            size_hint=(1, 0.18)
+        )
+        layout.add_widget(self.result_label)
+
+        # Calculate button
         calc_btn = Button(
-            text="Calculate (planned)",
+            text="Calculate Risk / Reward",
             size_hint=(1, 0.13),
-            on_press=lambda x: self._calculate_demo()
+            on_press=lambda x: self._calculate_basic()
         )
         layout.add_widget(calc_btn)
 
@@ -58,15 +69,37 @@ class TradeEntryScreen(Screen):
         back_btn = Button(
             text="⬅ Back to Home",
             size_hint=(1, 0.13),
-            on_press=lambda x: self.manager.current_screen._back_to_home(self.manager)
+            on_press=lambda x: self.manager.current = "home"
         )
-        # little trick: we will override this in HomeScreen
         layout.add_widget(back_btn)
 
         self.add_widget(layout)
 
-    def _calculate_demo(self):
-        print("[APP] In future this will calculate P&L using entry, SL, TP.")
+    def _calculate_basic(self):
+        try:
+            entry = float(self.entry_input.text)
+            sl = float(self.sl_input.text)
+            tp = float(self.tp_input.text)
+
+            risk = abs(entry - sl)
+            reward = abs(tp - entry)
+
+            if risk == 0:
+                rr_text = "RR: ∞ (SL equals entry)"
+            else:
+                rr = reward / risk
+                rr_text = f"RR: 1 : {rr:.2f}"
+
+            direction = "LONG" if tp > entry else "SHORT"
+
+            self.result_label.text = (
+                f"Direction: {direction}\n"
+                f"Risk per unit: {risk:.2f}\n"
+                f"Reward per unit: {reward:.2f}\n"
+                f"{rr_text}"
+            )
+        except ValueError:
+            self.result_label.text = "Please enter valid numbers for Entry, SL, and TP."
 
 
 # -----------------------------
@@ -100,7 +133,7 @@ class HomeScreen(Screen):
         )
         layout.add_widget(btn_trade)
 
-        # The rest are still placeholders for now
+        # Placeholders for future screens
         btn_risk = Button(
             text="Risk Management (soon)",
             size_hint=(1, 0.13),
@@ -132,11 +165,7 @@ class HomeScreen(Screen):
         self.add_widget(layout)
 
     def open_trade_entry(self, *_):
-        # Switch to TradeEntryScreen
         self.manager.current = "trade_entry"
-
-    def _back_to_home(self, manager):
-        manager.current = "home"
 
     def _placeholder(self, name: str):
         print(f"[APP] Button pressed (not implemented yet): {name}")
